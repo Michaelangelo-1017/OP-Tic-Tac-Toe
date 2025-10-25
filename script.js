@@ -31,6 +31,7 @@ function createBoard(){
             nextRoundBtn.classList.add('disabled');
             playGame.updateScoresText();
             changeBackground(0);
+            playGame.updateRoundText();
         },
         updateBoard(){
             document.querySelector('.board').innerHTML = '';
@@ -65,7 +66,6 @@ function createPlayer(){
 }
 
 function changeBackground(index){
-    console.log(index)
     walkthrough.style.color = index === 0 ? 'lime' : '#FB4D3D';
 }
 
@@ -79,6 +79,7 @@ function gameControls(names){
         canStillPlay : true,
         winner : "",
         scores : [0,0],
+        round : 1,
         checkWin(){
             const markIndexArr = [];
             currentBoard.board.forEach((space,index)=>{
@@ -123,13 +124,16 @@ function gameControls(names){
         newRound(){
             currentBoard.reset();
             this.currentPlayerIndex = 0;
+            this.round++;
             currentBoard.displayBoard();
         },
         restart(){
             currentBoard.reset();
             this.currentPlayerIndex = 0;
             this.scores = [0,0];
+            this.round = 1;
             currentBoard.displayBoard();
+            
         },
         checkDraw(){
             if(!currentBoard.board.includes('')){
@@ -146,6 +150,9 @@ function gameControls(names){
         },
         updateScoresText(){
             document.getElementById('scores').innerHTML = `<span class='name one'>${player1}</span> ${this.scores[0]} - ${this.scores[1]} <span class='name two'>${player2}</span>`;
+        },
+        updateRoundText(){
+            document.getElementById('round').innerText = `Round ${this.round}`
         }
     }
 }
@@ -153,8 +160,6 @@ function gameControls(names){
 const currentBoard = createBoard();
 const playGame = gameControls(createPlayer());
 currentBoard.displayBoard()
-console.log(currentBoard);
-console.log(playGame);
 
 //Event Listeners
 boardCont.addEventListener('click',(e)=>{
