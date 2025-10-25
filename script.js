@@ -96,15 +96,18 @@ function gameControls(names){
                 nextRoundBtn.classList.remove('disabled');
                 this.updateScore(this.marks.indexOf(this.winner));
                 changeBackground(this.marks.indexOf(this.winner));
+                return true;
             }
+            else{
+                return false;
+            }
+
         },
         playTurn(ticIndex){
             if(this.canStillPlay){
                 if(currentBoard.placeMark(this.setCurrentMark,ticIndex)){
-                    
                     currentBoard.updateBoard();
-                    this.checkWin();
-                    this.checkDraw()
+                    this.checkDraw();
                     this.switchPlayer();
                     this.canStillPlay ? currentBoard.updateWalkthrough(`${playGame.setCurrentPlayer}'s turn`) : null;
                     this.canStillPlay ? changeBackground(this.currentPlayerIndex) : null;
@@ -136,6 +139,9 @@ function gameControls(names){
             
         },
         checkDraw(){
+            if(this.checkWin()){
+                return
+            }
             if(!currentBoard.board.includes('')){
                 currentBoard.updateWalkthrough(`It's a draw!`);
                 restartBtn.classList.remove('disabled');
