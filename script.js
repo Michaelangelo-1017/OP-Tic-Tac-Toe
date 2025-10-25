@@ -1,6 +1,9 @@
 //Variables
 const boardCont = document.querySelector('.board');
 const restartBtn = document.getElementById('restart');
+const nextRoundBtn = document.getElementById('next-round');
+const walkthrough = document.getElementById('walkthrough');
+
 
 function createBoard(){
     return {
@@ -25,7 +28,9 @@ function createBoard(){
                 document.querySelector('.board').innerHTML += `<button class='tic-square' id='square-${index}'>${square}</button>`
             })
             currentBoard.updateWalkthrough(`${playGame.setCurrentPlayer}'s turn`);
-            restartBtn.classList.add('disabled')
+            nextRoundBtn.classList.add('disabled');
+            playGame.updateScoresText();
+            changeBackground(0);
         },
         updateBoard(){
             document.querySelector('.board').innerHTML = '';
@@ -34,7 +39,7 @@ function createBoard(){
             })
         },
         updateWalkthrough(text){
-            document.getElementById('walkthrough').innerText = text;
+            walkthrough.innerText = text;
         }
     }
 }
@@ -43,12 +48,25 @@ function createPlayer(){
     let player1 = '';
     while(player1.trim() === ''){
         player1 = prompt(`Enter Player 1's name`);
+        if(player1 === null){
+            player1 = 'Player 1'
+        }
     }
     let player2 = '';
     while(player2.trim() === ''){
         player2 = prompt(`Enter Player 2's name`);
+        if(player2 === null){
+            player2 = 'Player 2'
+        }
     }
-    return {player1,player2}
+    player1 = player1[0].toUpperCase() + player1.slice(1);
+    player2 = player2[0].toUpperCase() + player2.slice(1);
+    return {player1,player2};
+}
+
+function changeBackground(index){
+    console.log(index)
+    walkthrough.style.color = index === 0 ? 'lime' : '#FB4D3D';
 }
 
 function gameControls(names){
@@ -60,6 +78,7 @@ function gameControls(names){
         currentPlayerIndex : 0,
         canStillPlay : true,
         winner : "",
+        scores : [0,0],
         checkWin(){
             const markIndexArr = [];
             currentBoard.board.forEach((space,index)=>{
@@ -73,17 +92,22 @@ function gameControls(names){
                 this.canStillPlay = false;
                 this.winner = this.setCurrentMark;
                 document.querySelectorAll('.tic-square').forEach(btn => {btn.classList.add('alt-hover')});
-                restartBtn.classList.remove('disabled')
+                nextRoundBtn.classList.remove('disabled');
+                this.updateScore(this.marks.indexOf(this.winner));
+                changeBackground(this.marks.indexOf(this.winner));
             }
-            //console.log(`markIndexArr : ${JSON.stringify(markIndexArr)}`)
         },
         playTurn(ticIndex){
             if(this.canStillPlay){
                 if(currentBoard.placeMark(this.setCurrentMark,ticIndex)){
+                    
                     currentBoard.updateBoard();
                     this.checkWin();
+                    this.checkDraw()
                     this.switchPlayer();
                     this.canStillPlay ? currentBoard.updateWalkthrough(`${playGame.setCurrentPlayer}'s turn`) : null;
+                    this.canStillPlay ? changeBackground(this.currentPlayerIndex) : null;
+                    
                 }
             }
         },
@@ -96,13 +120,35 @@ function gameControls(names){
         get setCurrentMark(){
             return this.marks[this.currentPlayerIndex];
         },
+        newRound(){
+            currentBoard.reset();
+            this.currentPlayerIndex = 0;
+            currentBoard.displayBoard();
+        },
         restart(){
             currentBoard.reset();
             this.currentPlayerIndex = 0;
+            this.scores = [0,0];
+            currentBoard.displayBoard();
+        },
+        checkDraw(){
+            if(!currentBoard.board.includes('')){
+                currentBoard.updateWalkthrough(`It's a draw!`);
+                restartBtn.classList.remove('disabled');
+                nextRoundBtn.classList.remove('disabled');
+                this.canStillPlay = false;
+                document.querySelectorAll('.tic-square').forEach(btn => {btn.classList.add('alt-hover')});
+                walkthrough.style.color = 'aqua';
+            }
+        },
+        updateScore(winnerIndex){
+            this.scores[winnerIndex] += 1;
+        },
+        updateScoresText(){
+            document.getElementById('scores').innerHTML = `<span class='name one'>${player1}</span> ${this.scores[0]} - ${this.scores[1]} <span class='name two'>${player2}</span>`;
         }
     }
 }
-
 
 const currentBoard = createBoard();
 const playGame = gameControls(createPlayer());
@@ -110,19 +156,18 @@ currentBoard.displayBoard()
 console.log(currentBoard);
 console.log(playGame);
 
-
-
+//Event Listeners
 boardCont.addEventListener('click',(e)=>{
     if(e.target.classList.contains('tic-square')){
         const ticId = e.target.id;
         playGame.playTurn(ticId[ticId.length-1]);
-        //console.log('Btn clicked');
     }
 })
 
 restartBtn.addEventListener('click',()=>{
-    currentBoard.reset();
-    currentBoard.displayBoard();
+    playGame.restart();
 })
 
-console.log(currentBoard.board)
+nextRoundBtn.addEventListener('click',()=>{
+    playGame.newRound();
+})

@@ -22,19 +22,19 @@ body{
     font-size: 3.5em;
 }
 
-#walkthrough{
+#walkthrough,#scores{
     border: 2px dashed white;
-    width: calc(100% - 20px);
+    width: stretch;
     color: aqua;
     text-align: center;
     font-size: 1.5em;
 }
 
-#restart{
+#restart,#next-round{
     background-color: aqua;
     color: white;
     padding: 5px 10px;
-    width: 45%;
+    width: 60%;
     border-radius: 12px;
     font-size: 1.15em;
     font-weight: 600;
@@ -43,7 +43,7 @@ body{
 }
 
 
-#restart:hover{
+#restart:hover,#next-round:hover{
     transform: scale(1.15);
     cursor: pointer;
 }
@@ -55,7 +55,10 @@ body{
     max-width: 45%;
     justify-content: center;
     align-items: center;
+    margin-top: 30px;
+    gap: 20px;
 }
+
 .board{
     display: grid;
     grid-template-columns: repeat(3,1fr);
@@ -84,4 +87,12 @@ body{
 
 .disabled{
     display: none;
+}
+
+.one{
+    color: lime;
+}
+
+.two{
+    color: #FB4D3D;
 }
